@@ -1,0 +1,26 @@
+---
+#
+# One-time setup: creates the dedicated "ansible" user that yay.yml
+# becomes into for its yay task.
+#
+# Run once with: ansible-playbook bootstrap.yml -K
+
+- name: Bootstrap ansible user for yay automation
+  hosts: localhost
+  become: true
+  tasks:
+    - name: Create ansible user
+      ansible.builtin.user:
+        name: ansible
+        shell: /bin/bash
+        create_home: true
+        state: present
+
+    - name: Grant ansible user NOPASSWD sudo for pacman
+      ansible.builtin.copy:
+        dest: /etc/sudoers.d/99-ansible-pacman
+        content: "ansible ALL=(ALL) NOPASSWD: /usr/bin/pacman\n"
+        owner: root
+        group: root
+        mode: "0440"
+        validate: "visudo -cf %s"

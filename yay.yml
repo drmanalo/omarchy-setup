@@ -1,0 +1,34 @@
+---
+#
+# AUR packages build via `makepkg`, which refuses to run as root.
+# The install task runs as the dedicated "ansible" user.
+
+- name: Install packages via yay
+  hosts: localhost
+  vars:
+    packages:
+      - firefox
+      - foot
+      - google-chrome
+      - neofetch
+      - ntfs-3g
+      - pass
+      - pwgen
+      - speedtest-cli
+      - timeshift
+      - vlc
+    remove_packages:
+      - chromium
+      
+  tasks:
+    - name: Install packages with yay
+      become: true
+      become_user: ansible
+      command: "yay -S --noconfirm --needed {{ packages | join(' ') }}"
+      changed_when: false
+
+    - name: Remove unwanted packages
+      become: true
+      community.general.pacman:
+        name: "{{ remove_packages }}"
+        state: absent

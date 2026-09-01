@@ -1,0 +1,91 @@
+add_newline = true
+command_timeout = 500
+
+format = """
+[](fg:#89b4fa)\
+[ 󰣇 ](bg:#89b4fa fg:#1e1e2e)\
+[](fg:#89b4fa bg:#a6e3a1)\
+$directory\
+[](fg:#a6e3a1 bg:#f9e2af)\
+$git_branch\
+$git_status\
+[](fg:#f9e2af bg:#94e2d5)\
+$c$rust$golang$nodejs$python$java\
+[](fg:#94e2d5 bg:#fab387)\
+$cmd_duration\
+[](fg:#fab387)\
+$line_break\
+$character"""
+
+right_format = """[ $time ](fg:#6c7086)"""
+
+[directory]
+style = "bg:#a6e3a1 fg:#1e1e2e"
+format = "[ 󰉋 $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[git_branch]
+symbol = ""
+style = "bg:#f9e2af fg:#1e1e2e"
+format = '[ $symbol $branch ]($style)'
+
+[git_status]
+style = "bg:#f9e2af fg:#1e1e2e"
+format = '[($all_status$ahead_behind )]($style)'
+ahead      = "⇡${count} "
+diverged   = "⇕⇡${ahead_count}⇣${behind_count} "
+behind     = "⇣${count} "
+conflicted = "≠ "
+up_to_date = ""
+untracked  = "? "
+modified   = "! "
+stashed    = "≡ "
+staged     = "+ "
+renamed    = "» "
+deleted    = "✘ "
+
+[c]
+symbol = " "
+style = "bg:#94e2d5 fg:#1e1e2e"
+format = '[ $symbol($version) ]($style)'
+
+[rust]
+symbol = " "
+style = "bg:#94e2d5 fg:#1e1e2e"
+format = '[ $symbol($version) ]($style)'
+
+[golang]
+symbol = " "
+style = "bg:#94e2d5 fg:#1e1e2e"
+format = '[ $symbol($version) ]($style)'
+
+[nodejs]
+symbol = " "
+style = "bg:#94e2d5 fg:#1e1e2e"
+format = '[ $symbol($version) ]($style)'
+
+[python]
+symbol = " "
+style = "bg:#94e2d5 fg:#1e1e2e"
+format = '[ $symbol($version) ]($style)'
+
+[java]
+symbol = " "
+style = "bg:#94e2d5 fg:#1e1e2e"
+format = '[ $symbol($version) ]($style)'
+
+[cmd_duration]
+min_time = 2000
+style = "bg:#fab387 fg:#1e1e2e"
+format = '[ 󱦟 $duration ]($style)'
+
+[time]
+disabled = false
+time_format = "%R"
+style = "fg:#6c7086"
+
+[character]
+error_symbol = "[✗](bold #f38ba8)"
+success_symbol = "[❯](bold #a6e3a1)"
+vimcmd_symbol = "[❮](bold #a6e3a1)"

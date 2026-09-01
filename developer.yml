@@ -1,0 +1,91 @@
+---
+#
+# AUR packages build via `makepkg`, which refuses to run as root.
+# AUR tasks become the dedicated "ansible" user (see bootstrap.yml)
+
+- name: AWS CLI
+  hosts: localhost
+  tasks:
+    - name: Install aws-cli-v2
+      become: true
+      community.general.pacman:
+        name: aws-cli-v2
+        state: present
+        update_cache: true
+
+- name: kubectl
+  hosts: localhost
+  tasks:
+    - name: Install kubectl
+      become: true
+      community.general.pacman:
+        name: kubectl
+        state: present
+        update_cache: true
+
+- name: minikube
+  hosts: localhost
+  tasks:
+    - name: Install minikube
+      become: true
+      community.general.pacman:
+        name: minikube
+        state: present
+        update_cache: true
+
+- name: Install IntelliJ IDEA Community
+  hosts: localhost
+  tasks:
+    - name: Install intellij-idea-community-edition
+      become: true
+      community.general.pacman:
+        name: intellij-idea-community-edition
+        state: present
+        update_cache: true
+
+- name: Install rootless Docker
+  hosts: localhost
+  tasks:
+    - name: Install docker packages
+      become: true
+      community.general.pacman:
+        name:
+          - docker
+          - docker-buildx
+          - docker-compose
+        state: present
+        update_cache: true
+
+    - name: Check if docker-rootless-extras is installed
+      command: pacman -Qi docker-rootless-extras
+      register: _docker_rootless_check
+      changed_when: false
+      failed_when: false
+
+    - name: Install docker-rootless-extras from AUR
+      command: yay -S --noconfirm --needed docker-rootless-extras
+      become: true
+      become_user: ansible
+      when: _docker_rootless_check.rc != 0
+
+    - name: Disable system-wide Docker service and socket
+      become: true
+      systemd:
+        name: "{{ item }}"
+        enabled: false
+        state: stopped
+      loop:
+        - docker.service
+        - docker.socket
+
+    - name: Enable lingering so the user service survives logout
+      become: true
+      command: "loginctl enable-linger {{ lookup('env', 'USER') }}"
+      args:
+        creates: "/var/lib/systemd/linger/{{ lookup('env', 'USER') }}"
+
+    - name: Enable and start the rootless Docker user service
+      command: systemctl --user enable --now docker
+      environment:
+        XDG_RUNTIME_DIR: "/run/user/{{ lookup('pipe', 'id -u') }}"
+      changed_when: false
