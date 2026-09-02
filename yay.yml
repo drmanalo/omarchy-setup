@@ -16,6 +16,7 @@
       - pwgen
       - speedtest-cli
       - timeshift
+      - visual-studio-code-bin
       - vlc
     remove_packages:
       - chromium

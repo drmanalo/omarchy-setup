@@ -50,8 +50,3 @@ Available EFI Boot Entries:
 
 This lists every EFI boot entry it can find across all disks and lets you pick which ones to register in `/boot/limine.conf`. Pick the **Windows Boot Manager** entry to add.
 
-Verify it was written before doing a `reboot`.
-
-```
-❯ grep -A2 -i "windows boot manager" /boot/limine.conf
-```

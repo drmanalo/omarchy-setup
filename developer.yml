@@ -89,3 +89,15 @@
       environment:
         XDG_RUNTIME_DIR: "/run/user/{{ lookup('pipe', 'id -u') }}"
       changed_when: false
+
+- name: Install compiler and interpreter
+  hosts: localhost
+  vars:
+    mise_tools:
+      - go@latest
+      - java@21.0.2
+      - node@26.8.1
+  tasks:
+    - name: Install and set global versions with mise
+      command: "mise use --global {{ mise_tools | join(' ') }}"
+      changed_when: false
