@@ -1,0 +1,57 @@
+---
+- name: Install and configure keyd
+  hosts: localhost
+  become: true
+  tasks:
+    - name: Install keyd
+      community.general.pacman:
+        name: keyd
+        state: present
+        update_cache: true
+
+    - name: Configure keyd default mapping
+      ansible.builtin.copy:
+        dest: /etc/keyd/default.conf
+        mode: "0644"
+        content: |
+          [ids]
+          *
+
+          [main]
+          102nd = grave
+      notify: Restart keyd
+
+    - name: Enable and start keyd service
+      ansible.builtin.systemd:
+        name: keyd
+        enabled: true
+        state: started
+
+  handlers:
+    - name: Restart keyd
+      ansible.builtin.systemd:
+        name: keyd
+        state: restarted
+
+- name: Install bash autosuggestions
+  hosts: localhost
+  tasks:
+    - name: Install blesh
+      become: true
+      become_user: ansible
+      command: "yay -S --noconfirm --needed blesh"
+      changed_when: false
+
+    - name: Source ble.sh early in .bashrc
+      ansible.builtin.lineinfile:
+        path: "{{ ansible_facts.env.HOME }}/.bashrc"
+        line: "[[ -r /usr/share/blesh/ble.sh ]] && source /usr/share/blesh/ble.sh --noattach"
+        insertafter: '^\[\[ \$- != \*i\* \]\] && return'
+        state: present
+
+    - name: Attach ble.sh as the last line of .bashrc
+      ansible.builtin.lineinfile:
+        path: "{{ ansible_facts.env.HOME }}/.bashrc"
+        line: "[[ ${BLE_VERSION-} ]] && ble-attach"
+        insertafter: EOF
+        state: present

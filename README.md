@@ -57,6 +57,14 @@ This lists every EFI boot entry it can find across all disks and lets you pick w
 --disable-features=WaylandLinuxDrmSyncobj
 ```
 
+**bindings.lua**
+
+```
+-- Rebind close window
+hl.unbind("SUPER + W")
+o.bind("CTRL + Q", "Close window", hl.dsp.window.close())
+```
+
 **input.lua**
 
 `ctrl:swap_lalt_lctl:` left Alt (Cmd position) becomes Ctrl and left Ctrl becomes Alt, for Mac-style Cmd shortcuts across all apps.
@@ -90,3 +98,18 @@ hl.config({
 hl.monitor({ output = "DP-3", mode = "3840x1600", position = "0x0", scale = omarchy_monitor_scale })
 hl.monitor({ output = "eDP-2", mode = "2560x1600", position = "3840x0", scale = omarchy_monitor_scale })
 ```
+
+**foot.ini**
+
+```
+[main]
+include=~/.local/state/omarchy/current/theme/foot.ini
+term=xterm-256color
+font=JetBrainsMono Nerd Font:size=13
+
+pad=14x14
+initial-window-mode=windowed
+workers=0
+selection-target=clipboard
+```
+
