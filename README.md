@@ -53,8 +53,11 @@ This lists every EFI boot entry it can find across all disks and lets you pick w
 **for iframe issues**
 
 ```
-❯ cat ~/.config/google-chrome-flags.conf 
---disable-features=WaylandLinuxDrmSyncobj
+❯ cat ~/.config/chrome-flags.conf 
+# Chrome's VA-API hardware video decode misbehaving with NVIDIA + Wayland.
+# Falls back to software video decode; GPU compositing/rendering stays on.
+--disable-accelerated-video-decode
+
 ```
 
 **bindings.lua**
@@ -76,9 +79,6 @@ hl.config({
     kb_options = "compose:caps,shift:both_capslock_cancel,grp:alts_toggle,ctrl:swap_lalt_lctl",
     natural_scroll = true,
     numlock_by_default = true,
-    repeat_rate = 40,
-    repeat_delay = 250,
-    sensitivity = 0.35,
     scroll_factor = 1.5,
 
     touchpad = {

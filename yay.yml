@@ -8,14 +8,20 @@
   vars:
     packages:
       - firefox
-      - foot
+      - fish
       - google-chrome
       - evolution
+      - helm
+      - hugo
       - neofetch
       - ntfs-3g
+      - opentofu
+      - pandoc-bin
+      - python-weasyprint
       - pass
       - pwgen
       - speedtest-cli
+      - terraform
       - timeshift
       - visual-studio-code-bin
       - vlc
