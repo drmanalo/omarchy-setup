@@ -1,0 +1,70 @@
+---
+#
+# Native (pacman) Kafka, run as the local user in KRaft mode instead of
+# systemd unit so user can own the data and log files.
+#
+# Run with: ansible-playbook kafka.yml -K
+
+- name: Native Kafka (KRaft, single node)
+  hosts: localhost
+  vars:
+    kafka_config_dir: "{{ ansible_facts['env']['HOME'] }}/.config/kafka"
+    kafka_data_dir: "{{ ansible_facts['env']['HOME'] }}/.local/share/kafka-data"
+    kafka_log_dir: "{{ ansible_facts['env']['HOME'] }}/.local/state/kafka-logs"
+    kafka_server_properties: "{{ kafka_config_dir }}/server.properties"
+  tasks:
+    - name: Install kafka
+      become: true
+      community.general.pacman:
+        name: kafka
+        state: present
+        update_cache: true
+
+    - name: Disable the packaged kafka systemd service
+      become: true
+      ansible.builtin.systemd:
+        name: kafka.service
+        enabled: false
+        state: stopped
+
+    - name: Create user-owned config, data, and log directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: "0755"
+      loop:
+        - "{{ kafka_config_dir }}"
+        - "{{ kafka_data_dir }}"
+        - "{{ kafka_log_dir }}"
+
+    - name: Copy default server.properties into the user config
+      ansible.builtin.copy:
+        src: /usr/share/kafka/config/server.properties
+        dest: "{{ kafka_server_properties }}"
+        remote_src: true
+        force: false
+
+    - name: Point log.dirs at the user-owned data directory
+      ansible.builtin.lineinfile:
+        path: "{{ kafka_server_properties }}"
+        regexp: '^log\.dirs='
+        line: "log.dirs={{ kafka_data_dir }}"
+
+    - name: Check whether storage is already formatted
+      ansible.builtin.stat:
+        path: "{{ kafka_data_dir }}/meta.properties"
+      register: _kafka_meta
+
+    - name: Generate a cluster UUID
+      ansible.builtin.command: /usr/bin/kafka-storage.sh random-uuid
+      register: _kafka_uuid
+      changed_when: false
+      when: not _kafka_meta.stat.exists
+
+    # Single-node broker+controller without controller.quorum.voters set
+    - name: Format storage (single-node KRaft)
+      ansible.builtin.command: >
+        /usr/bin/kafka-storage.sh format --standalone
+        -t {{ _kafka_uuid.stdout }}
+        -c {{ kafka_server_properties }}
+      when: not _kafka_meta.stat.exists
